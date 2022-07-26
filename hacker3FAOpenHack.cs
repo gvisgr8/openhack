@@ -119,5 +119,28 @@ namespace EM
 
             return new OkObjectResult (id);
         }
+
+        [FunctionName("GetRating")]
+        public static IActionResult RunGetRating(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "rating/{id}")]HttpRequest req,
+            [CosmosDB(
+                databaseName: "Ratings",
+                collectionName: "ratingItems",
+                ConnectionStringSetting = "ConnectionStringSetting",
+                SqlQuery = "select * from ratingItems c where c.id = {id}")] IEnumerable<object>  documents,
+            ILogger log)
+        {
+            log.LogInformation("GetRating function processed a request.");         
+
+            if (documents == null)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new OkObjectResult(documents);
+            }
+
+        }
     }
 }

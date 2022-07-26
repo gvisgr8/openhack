@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Net.Http;
@@ -135,6 +136,30 @@ namespace EM
             if (documents == null)
             {
                 return new NotFoundResult();
+            }
+            else
+            {
+                return new OkObjectResult(documents);
+            }
+
+        }
+
+         [FunctionName("GetRatings")]
+        public static IActionResult RunGetRatings(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ratings/{userId}")]HttpRequest req,
+            [CosmosDB(
+                databaseName: "Ratings",
+                collectionName: "ratingItems",
+                ConnectionStringSetting = "ConnectionStringSetting",
+                SqlQuery = "select * from ratingItems c where c.userId = {userId}")] IEnumerable<object>  documents,
+            ILogger log)
+        {
+            log.LogInformation("GetRatings function processed a request.");         
+
+
+            if ((documents == null) || (documents.Count() == 0))
+            {
+                return new BadRequestObjectResult("UserId not found");
             }
             else
             {
